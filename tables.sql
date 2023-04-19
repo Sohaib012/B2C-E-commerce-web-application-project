@@ -105,6 +105,9 @@ CREATE TABLE admin (
     login_ID VARCHAR(20) UNIQUE
 );
 
+INSERT INTO category (category_id, category_name, description)
+VALUES ('C001', 'Electronics', 'Products related to electronic devices and gadgets');
+
 INSERT INTO product (product_id, quantity_pu, product_name, stock_units, unit_weight, discount, reorder_level, product_description, supplier_ID, category) 
 VALUES ('12345', 10, 'Example Product', 100, 0.5, 0.1, 5, 'This is an example product', 'ABC123', 'C001');
 
