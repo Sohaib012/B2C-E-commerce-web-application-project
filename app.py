@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, String  
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import joinedload
 import uuid
 
 
@@ -69,9 +70,14 @@ class Cart(db.Model):
     total_price = db.Column(db.Integer)
     customer = db.Column(db.ForeignKey('customer.customer_id'))
 
-    customer1 = db.relationship('Customer', primaryjoin='Cart.customer == Customer.customer_id', backref='carts')
-
-
+    #customer1 = db.relationship('Customer', primaryjoin='Cart.customer == Customer.customer_id', backref='carts')
+    
+class CartProduct(db.Model):
+    __tablename__ = 'cart_products'
+    
+    cart_id = db.Column(db.String(20), db.ForeignKey('cart.cart_id'), primary_key=True)
+    product_id = db.Column(db.String(20), db.ForeignKey('product.product_id'), primary_key=True)
+    quantity = db.Column(db.Integer) 
 
 class Category(db.Model):
     __tablename__ = 'category'
@@ -138,6 +144,7 @@ class Product(db.Model):
     unit_weight = db.Column(db.Float(53))
     discount = db.Column(db.Float(53))
     reorder_level = db.Column(db.Integer)
+    price = db.Column(db.Integer)
     product_description = db.Column(db.String(30))
     supplier_id = db.Column(db.String(20))
     category = db.Column(db.ForeignKey('category.category_id'))
@@ -179,7 +186,7 @@ class Trackinginfo(db.Model):
     aboutorder1 = db.relationship('Aboutorder', primaryjoin='Trackinginfo.aboutorder == Aboutorder.order_id', backref='trackinginfos')
     product1 = db.relationship('Product', primaryjoin='Trackinginfo.product == Product.product_id', backref='trackinginfos')
 
-	
+    
 
 #set secret key for the app in order to use sessions 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
@@ -194,7 +201,7 @@ def login():
     # response = request.form.get('g-recaptcha-response')
     # if not response:
     #     return render_template('login.html', error='Please complete the reCAPTCHA.')
-
+    
     usr = request.form.get('username')
     entered_password = request.form.get('password')
 
@@ -202,6 +209,7 @@ def login():
         customer = Customer.query.filter_by(loginid=usr).first()
         if customer and customer.passwd == entered_password:
             session['username'] = usr
+            session['customer_id'] = customer.customer_id
             flash('You are successfully logged in')
             return redirect(url_for('login'))
         else:
@@ -215,32 +223,149 @@ def login():
 #routing to createuser page
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-	if request.method=='POST':
-		fn=request.form['first_name']
-		ln=request.form['last_name']
-		usr=request.form['loginid']
-		cno=request.form['contact_num']
-		pwd=request.form['passwd']
+    if request.method=='POST':
+        fn=request.form['first_name']
+        ln=request.form['last_name']
+        usr=request.form['loginid']
+        cno=request.form['contact_num']
+        pwd=request.form['passwd']
 
-		error = None
+        error = None
 
-		if not (fn and ln and usr and cno and pwd):
-			error = "Failure: Credentials are not filled in properly."
-			return render_template('createuser.html', error)
+        if not (fn and ln and usr and cno and pwd):
+            error = "Failure: Credentials are not filled in properly."
+            return render_template('createuser.html', error)
 
-		usr_exists = Customer.query.filter_by(loginid=usr).first()
-		if usr_exists:
-			error = "Failure: Username already exists"  
-			return render_template('createuser.html', error)
+        usr_exists = Customer.query.filter_by(loginid=usr).first()
+        if usr_exists:
+            error = "Failure: Username already exists"  
+            return render_template('createuser.html', error)
                 
-		c_id = str(uuid.uuid4())[:8]
-		new_customer = Customer(customer_id=c_id, first_name=fn, last_name=ln, loginid=usr, passwd=pwd, contact_num=cno)
-		db.session.add(new_customer)
-		db.session.commit()
-		flash('User successfully created')
-		return redirect(url_for('login'))
-	
-	return render_template('register.html', error = None)
+        c_id = str(uuid.uuid4())[:8]
+        new_customer = Customer(customer_id=c_id, first_name=fn, last_name=ln, loginid=usr, passwd=pwd, contact_num=cno)
+        db.session.add(new_customer)
+        db.session.commit()
+        flash('User successfully created')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html', error = None)
+
+
+def getLoginDetails():
+    loggedIn = False
+    firstName = ''
+    noOfItems = 0
+
+    if 'username' in session:
+        loggedIn = True
+        usr = session['username']
+
+        # get the number of items in the cart for the current user
+        user = Customer.query.filter_by(loginid=usr).first()
+        if user:
+            cart = Cart.query.filter_by(customer_id=user.customer_id).all()
+            noOfItems = len(cart)
+
+    return loggedIn, firstName, noOfItems
+
+@app.route("/productDescription")
+def productDescription():
+    product_id = request.args.get('productId')
+    productData = Product.query.filter_by(product_id=product_id).first()
+    return render_template("product.html", productdata=productData)
+
+@app.route("/addToCart", methods=["POST"])
+def addToCart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    else:
+        product_id = request.args.get('productId')
+        cust_id = session['customer_id']
+    
+        productData = Product.query.filter_by(product_id=product_id).first()
+        # Check if the product is already in the cart
+        cart = Cart.query.filter_by(customer=cust_id).first()
+
+        if not cart:
+            # If the customer doesn't have a cart, create a new one
+            cart = Cart(cart_id=str(uuid.uuid4())[:20], customer=cust_id, nop=0, total_price=0)
+            db.session.add(cart)
+
+
+        # Check if the product is already in the cart
+        cart_product = CartProduct.query.filter_by(cart_id=cart.cart_id, product_id=product_id).first()
+
+        if cart_product:
+            cart_product.quantity += int(request.form['quantity'])
+            cart.nop += cart_product.quantity
+            productData.quantity_pu -= int(request.form['quantity'])  
+        else:
+            cart_product = CartProduct(cart_id=cart.cart_id, product_id=product_id, quantity=int(request.form['quantity']))
+            cart.nop += int(request.form['quantity'])
+            db.session.add(cart_product)
+            productData.quantity_pu -= int(request.form['quantity'])
+
+        # Update the total price
+        product = Product.query.get(product_id)
+        cart.total_price += product.price * int(request.form['quantity'])
+
+        db.session.commit()
+
+        msg = "Added successfully"
+        return "<h1>Mubarak ho</h1>"
+    
+@app.route("/cart")
+def cart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    cust_id = session['customer_id']
+    cust = Customer.query.filter_by(customer_id=cust_id).first()
+
+    products = (
+        db.session.query(Product, CartProduct.quantity)
+        .join(CartProduct)
+        .join(Cart)
+        .filter(Cart.customer == cust_id)
+        .all()
+        )
+
+    cart = Cart.query.filter_by(customer=cust_id).first()
+    if cart:
+        total_price = cart.total_price
+        nop = cart.nop
+    else:
+        return render_template("cart.html", totalPrice=0, noOfItems=0)
+    return render_template("cart.html", products=products, totalPrice=total_price, noOfItems=nop)
+
+
+@app.route("/removeFromCart", methods=["POST"])
+def removeFromCart():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    usr = session['username']
+    product_id = request.form['productId']
+
+    cust = Customer.query.filter_by(loginid=usr).first()
+    cart = Cart.query.filter_by(customer=cust.customer_id).first()
+
+    try:
+        cart_product = CartProduct.query.filter_by(cart_id=cart.cart_id, product_id=product_id).first()
+        db.session.delete(cart_product)
+        cart.nop -= cart_product.quantity
+        product = Product.query.get(product_id)
+        cart.total_price -= product.price * cart_product.quantity
+        db.session.commit()
+        msg = "removed successfully"
+    except:
+        db.session.rollback()
+        msg = "error occurred"
+
+    return redirect(url_for('cart'))
+
+
 
 
 @app.route('/logout')
