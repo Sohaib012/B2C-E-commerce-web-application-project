@@ -19,11 +19,11 @@
           <p>Unit Price: {{ product.price }} PKR</p>
           <p>Quantity: {{ quantity }}</p>
           <p>Subtotal: {{ quantity * product.price }} PKR</p>
-        </div>
+        </div>{{product.product_id}}
         <form action="{{ url_for('removeFromCart') }}" method="POST">
-            <input type="hidden" name="productId" value="{{ product.product_id }}">
-            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-          </form>
+          <input type="hidden" name="productId" value="{{ product.product_id }}">
+          <button type="submit" class="btn btn-danger">Remove</button>
+        </form>        
       </div>
     {% endfor %}
 
@@ -33,6 +33,7 @@
     <button class="checkout" href="/checkout">Checkout</button>
   </div></div>
 {% endif %}
+
   
 
 

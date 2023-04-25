@@ -7,6 +7,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import joinedload
 import uuid
+from flask import Flask
+import logging
+
 
 
 app = Flask(__name__)
@@ -192,7 +195,7 @@ class Trackinginfo(db.Model):
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 #routing the app to the login page.(In this case this is my starting page for now)
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
          return render_template('login.html', error=None)
@@ -268,6 +271,17 @@ def getLoginDetails():
 
     return loggedIn, firstName, noOfItems
 
+@app.route("/loco")
+def loco():
+    return render_template('loco.html')
+
+@app.route("/category")
+def displayCategory():
+    category_id = request.args.get('categoryId')
+    category = Category.query.filter_by(category_id=category_id).first()
+    products = db.session.query(Product).join(Category, Product.category == Category.category_id).filter(Category.category_id == category_id).all()
+    return render_template('category.html', products=products, category = category)
+
 @app.route("/productDescription")
 def productDescription():
     product_id = request.args.get('productId')
@@ -298,7 +312,7 @@ def addToCart():
 
         if cart_product:
             cart_product.quantity += int(request.form['quantity'])
-            cart.nop += cart_product.quantity
+            cart.nop += int(request.form['quantity'])  
             productData.quantity_pu -= int(request.form['quantity'])  
         else:
             cart_product = CartProduct(cart_id=cart.cart_id, product_id=product_id, quantity=int(request.form['quantity']))
@@ -313,7 +327,7 @@ def addToCart():
         db.session.commit()
 
         msg = "Added successfully"
-        return "<h1>Mubarak ho</h1>"
+        return redirect(url_for('cart'))
     
 @app.route("/cart")
 def cart():
@@ -346,27 +360,35 @@ def removeFromCart():
         return redirect(url_for('login'))
 
     usr = session['username']
+    cust_id = session['customer_id']
     product_id = request.form['productId']
 
     cust = Customer.query.filter_by(loginid=usr).first()
-    cart = Cart.query.filter_by(customer=cust.customer_id).first()
+    cart = Cart.query.filter_by(customer=cust_id).first()
 
     try:
         cart_product = CartProduct.query.filter_by(cart_id=cart.cart_id, product_id=product_id).first()
         db.session.delete(cart_product)
         cart.nop -= cart_product.quantity
         product = Product.query.get(product_id)
+        product.quantity_pu += cart_product.quantity
         cart.total_price -= product.price * cart_product.quantity
         db.session.commit()
         msg = "removed successfully"
-    except:
+    except Exception as e:
         db.session.rollback()
         msg = "error occurred"
+        logging.error(f"Error removing item from cart: {msg}. Exception: {e}")
 
     return redirect(url_for('cart'))
 
+@app.route("/")
+def index():
 
+    productData = db.session.query(Product).all()
+    categoryData = db.session.query(Category).all()
 
+    return render_template('index.html', productData=productData, categoryData=categoryData)
 
 @app.route('/logout')
 def logout():

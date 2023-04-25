@@ -7,6 +7,9 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
+  <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.css">-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" /> 
+  <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
 </head>
 
@@ -42,7 +45,7 @@
   </div>
 
 	<main>
-    <br><br><br>
+    <br><br>
 		{% block content %}{% endblock %}
 	</main>
 
@@ -129,7 +132,7 @@
             <p class="footer-list-title">Newsletter</p>
 
             <p class="newsletter-text">
-              Authoritatively morph 24/7 potentialities with error-free partnerships.
+              Join our newsletter and stay ahead of the game.
             </p>
 
             <form action="" class="newsletter-form">
@@ -158,25 +161,26 @@
   </footer>
 
 
-
-
-
+ 
+  {% block script %} 
 
   <!-- 
     - custom js link
   -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/ScrollTrigger.min.js"></script>
+  <!--<script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>-->
 
   <!-- 
     - ionicon link
   -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <!--script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>-->
 
 
 
-	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% endblock %}
 </body>
 </html>
-
