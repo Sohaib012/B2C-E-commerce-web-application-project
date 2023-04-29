@@ -18,8 +18,8 @@ load_dotenv()
 
 #stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
 #stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-stripe_public_key = "sk_test_51N1tPbGZpL6j0pjIrNDvGgTBvQQUCjgGiDS55f6Ah48ZrlUKJuh4tkVheRkq7pokKS3ngfAL9Ioa1z5mwq6UEjqW00XTe0nc78"
-stripe.api_key = "sk_test_51N1tPbGZpL6j0pjIrNDvGgTBvQQUCjgGiDS55f6Ah48ZrlUKJuh4tkVheRkq7pokKS3ngfAL9Ioa1z5mwq6UEjqW00XTe0nc78"
+stripe_public_key = <STRIPE_PUBLISHABLE_KEY>
+stripe.api_key = <STRIPE_SECRET_KEY>
 
 
 
