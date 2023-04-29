@@ -399,6 +399,7 @@ p {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  margin-bottom: 20px;
 }
 
 .section {
@@ -822,4 +823,47 @@ hr {
 }
 
 
+.contact {
+  display: flex;
+  flex-direction: row;
+}
+
+.map {
+  width: 50%;
+}
+
+.form {
+  width: 50%;
+  padding: 50px;
+  box-sizing: border-box;
+}
+
+.form-txt {
+  max-width: 400px;
+  margin: auto;
+  text-align: left;
+}
+
+@media screen and (max-width: 480px) {
+  .contact {
+    flex-direction: column;
+  }
+
+  .map {
+    width: 100%;
+  }
+
+  .iframe{
+    width: 50%;
+  }
+
+  .form {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .form-txt {
+    max-width: 100%;
+  }
+}
 
