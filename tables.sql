@@ -120,3 +120,21 @@ CREATE TABLE cart_products (
 
 ALTER TABLE product ADD price numeric;
 UPDATE product SET price = 100;
+
+
+CREATE TABLE orders (
+  order_id SERIAL PRIMARY KEY,
+  order_date DATE NOT NULL,
+  shipped_date DATE,
+  shipper_id text REFERENCES shipper(shipper_id),
+  customer_id text REFERENCES customer(customer_id)
+);
+
+CREATE TABLE order_items (
+  order_id INTEGER REFERENCES orders(order_id),
+  product_id text REFERENCES product(product_id),
+  unit_price FLOAT NOT NULL,
+  quantity INTEGER NOT NULL,
+  discount FLOAT NOT NULL,
+  PRIMARY KEY (order_id, product_id)
+);
