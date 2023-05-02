@@ -46,6 +46,7 @@ CREATE TABLE product (
     quantity_pu INTEGER,
     product_name VARCHAR(20),
     stock_units INTEGER,
+    product_image VARCHAR,
     unit_weight FLOAT,
     discount FLOAT,
     reorder_level INTEGER,

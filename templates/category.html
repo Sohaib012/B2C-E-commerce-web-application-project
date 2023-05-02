@@ -9,7 +9,7 @@
   <div class="card-stack">
     {% for product in products %}
       <div class="card mb-4 shadow-sm">
-        <img class="card-img-top" src="https://preparehow.com/wp-content/uploads/2020/08/maxresdefault-1024x576-2.jpg" alt="{{ product.product_name }}">
+        <img class="card-img-top" src="{{ url_for('static', filename='uploads/' + product.product_image) }}" alt="{{ product.product_name }}">
         <div class="card-body">
           <h5 class="card-title">{{ product.product_name }}</h5>
           <p class="card-text">${{ product.price }}</p>

@@ -6,7 +6,7 @@
   <div class="productinfo animate">
     <div class="row">
       <div class="col-md-6">
-        <img src="https://preparehow.com/wp-content/uploads/2020/08/maxresdefault-1024x576-2.jpg" alt="{{ productdata.product_name }}" class="img-fluid">
+        <img src="{{ url_for('static', filename='uploads/' + productdata.product_image) }}" alt="{{ productdata.product_name }}" class="img-fluid">
       </div>
       <div>
         <h1>{{ productdata.product_name }}</h1>
