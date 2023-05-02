@@ -39,20 +39,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:12345678@localhos
 db = SQLAlchemy(app)
 
 # Database relational models based on flask-SQLAlchemy ORM syntax
-class Aboutorder(db.Model):
-    __tablename__ = 'aboutorder'
-
-    order_id = db.Column(db.String(20), primary_key=True)
-    order_num = db.Column(db.Integer)
-    ship_via = db.Column(db.String(20))
-    shipper_id = db.Column(db.String(20))
-    order_date = db.Column(db.Date)
-    shipped_date = db.Column(db.Date)
-    customer = db.Column(db.ForeignKey('customer.customer_id'))
-
-    customer1 = db.relationship('Customer', primaryjoin='Aboutorder.customer == Customer.customer_id', backref='aboutorders')
-
-
 
 class Admin(db.Model):
     __tablename__ = 'admin'
@@ -61,23 +47,6 @@ class Admin(db.Model):
     first_name = db.Column(db.String(20))
     last_name = db.Column(db.String(20))
     login_id = db.Column(db.String(20), unique=True)
-
-
-
-class Billinginfo(db.Model):
-    __tablename__ = 'billinginfo'
-
-    billing_id = db.Column(db.String(40), primary_key=True)
-    credit_card_pin = db.Column(db.Integer)
-    credit_card_num = db.Column(db.Integer)
-    bill_date = db.Column(db.Date)
-    billing_addr = db.Column(db.String)
-    credit_card_expiry = db.Column(db.Date)
-    customer = db.Column(db.ForeignKey('customer.customer_id'))
-    aboutorder = db.Column(db.ForeignKey('aboutorder.order_id'))
-
-    aboutorder1 = db.relationship('Aboutorder', primaryjoin='Billinginfo.aboutorder == Aboutorder.order_id', backref='billinginfos')
-    customer1 = db.relationship('Customer', primaryjoin='Billinginfo.customer == Customer.customer_id', backref='billinginfos')
 
 
 
@@ -119,19 +88,24 @@ class Customer(db.Model):
 
 
 
-class Orderdetail(db.Model):
-    __tablename__ = 'orderdetails'
+class Order(db.Model):
+    __tablename__ = 'orders'
 
-    useless_id = db.Column(db.Integer, primary_key=True)
-    unit_price = db.Column(db.Float(53))
-    discount = db.Column(db.Float(53))
-    order_num = db.Column(db.Integer)
-    quantity = db.Column(db.Integer)
-    product = db.Column(db.ForeignKey('product.product_id'))
-    aboutorder = db.Column(db.ForeignKey('aboutorder.order_id'))
+    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    order_date = db.Column(db.Date, nullable=False)
+    shipped_date = db.Column(db.Date)
+    shipper_id = db.Column(db.Integer, db.ForeignKey('shipper.shipper_id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id'))
 
-    aboutorder1 = db.relationship('Aboutorder', primaryjoin='Orderdetail.aboutorder == Aboutorder.order_id', backref='orderdetails')
-    product1 = db.relationship('Product', primaryjoin='Orderdetail.product == Product.product_id', backref='orderdetails')
+class OrderItem(db.Model):
+    __tablename__ = 'order_items'
+
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.product_id'), primary_key=True)
+    unit_price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    discount = db.Column(db.Float, nullable=False)
+
 
 
 
@@ -171,7 +145,16 @@ class Product(db.Model):
 
     category1 = db.relationship('Category', primaryjoin='Product.category == Category.category_id', backref='products')
 
+class Aboutorder(db.Model):
+    __tablename__ = 'aboutorder'
 
+    order_id = db.Column(db.String(20), primary_key=True)
+    order_num = db.Column(db.Integer)
+    ship_via = db.Column(db.String(20))
+    shipper_id = db.Column(db.String(20))
+    order_date = db.Column(db.Date)
+    shipped_date = db.Column(db.Date)
+    customer = db.Column(db.ForeignKey('customer.customer_id'))
 
 class Shipper(db.Model):
     __tablename__ = 'shipper'
@@ -231,7 +214,7 @@ def login():
             session['username'] = usr
             session['customer_id'] = customer.customer_id
             flash('You are successfully logged in')
-            return redirect(url_for('login'))
+            return redirect(url_for('index'))
         else:
             error = 'Invalid Credentials. Please try again.'
     else:
@@ -288,9 +271,9 @@ def getLoginDetails():
 
     return loggedIn, firstName, noOfItems
 
-@app.route("/loco")
-def loco():
-    return render_template('loco.html')
+#@app.route("/loco")
+#def loco():
+    #return render_template('loco.html')
 
 @app.route("/category")
 def displayCategory():
@@ -444,7 +427,7 @@ def checkout():
 
         session['line_items'] = line_items
         session['description'] = 'Order from Kuchu Muchu'
-        session['amount'] = total_price * 100
+        session['amount'] = total_price
         session['nop'] = nop
         session['cart_id'] = cart.cart_id
         session['customer_email'] = Customer.query.get(cust_id).loginid
@@ -469,22 +452,39 @@ def success():
     cart_id = session['cart_id']
     cust_id = session['customer_id']
     
+    # Update cart and commit changes
     cart = Cart.query.filter_by(cart_id=cart_id).first()
-    cart.nop = nop
-    cart.total_price = amount
+    cart.nop = 0
+    cart.total_price = 0
     db.session.commit()
     
-    order = Orderdetail(unit_price=amount, discount=0, order_num=1, quantity=nop)
+    # Create an Aboutorder entry
+    order = Order(customer_id=cust_id, order_date = date.today(), shipper_id = 'S123')
     db.session.add(order)
     db.session.commit()
     
-    # Clear the cart
+    products = (
+        db.session.query(Product, CartProduct.quantity)
+        .join(CartProduct)
+        .filter(CartProduct.cart_id == cart_id)
+        .all()
+    )
+
+
+    # Add order details to the database
     cart_products = CartProduct.query.filter_by(cart_id=cart_id).all()
+    for product, quantity in products:
+        orderItems = OrderItem(unit_price=quantity * product.price, discount=0, quantity=quantity, product_id=product.product_id, order_id=order.order_id)
+        db.session.add(orderItems)
+    db.session.commit()
+    
+    # Clear the shopping cart
     for cp in cart_products:
         db.session.delete(cp)
     db.session.commit()
     
     return render_template('success.html', description=description, amount=amount, nop=nop)
+
 
 @app.route('/cancel')
 def cancel():
@@ -577,6 +577,42 @@ def add_product():
 
         return redirect(url_for('admin'))
 
+    return render_template('admin_dashboard.html')
+
+@app.route('/edit_product', methods=['GET', 'POST'])
+def edit_product():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+
+    product_id = request.form['product_id']
+    product = Product.query.filter_by(product_id=product_id).first() 
+    
+    if request.method == 'POST':
+        product.product_name = request.form['new_name']
+        product.product_description = request.form['new_description']
+        product.price = request.form['new_price']
+
+        db.session.commit()
+
+        return render_template('admin_dashboard.html')
+
+    return render_template('admin_dashboard.html')
+
+@app.route('/remove_product', methods=['POST'])
+def remove_product():
+    product_id = request.form['product_id']
+    
+    # check if product exists
+    product = Product.query.filter_by(product_id=product_id).first()
+    if not product:
+        flash('Product not found.')
+        return redirect(url_for('admin'))
+    
+    # remove product from database
+    db.session.delete(product)
+    db.session.commit()
+    
+    flash('Product removed successfully.')
     return render_template('admin_dashboard.html')
 
 
