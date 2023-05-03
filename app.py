@@ -13,6 +13,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import stripe
+from datetime import date
 
 load_dotenv()
 
