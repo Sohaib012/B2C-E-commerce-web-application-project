@@ -9,7 +9,18 @@
 ## About The Project
 
 ### Technologies
-![image](https://github.com/user-attachments/assets/cd0de7ee-0724-43b1-aa90-83c08a868656)
+```sh
+Flask
+PostgresSQL
+Docker
+HTML
+CSS
+Javascript
+Plotly
+Dash
+SQLAlchemy ORM
+Stripe API
+  ```
 
 
 ### Projet in Action
