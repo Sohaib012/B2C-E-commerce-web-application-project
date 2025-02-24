@@ -29,12 +29,15 @@
 <p align="center">
     Admin Login Page
 
+![image](https://github.com/user-attachments/assets/1b0a0ee5-8f57-447f-9b24-c813ca65c456)
+<p align="center">
+    Admin Portal Page
 
 
+![image](https://github.com/user-attachments/assets/73fb759e-b9e8-40dc-8cc3-ef844b61c36c)
+<p align="center">
+    Analytics Page
 
 
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
