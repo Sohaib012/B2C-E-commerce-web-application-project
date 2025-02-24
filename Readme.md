@@ -12,6 +12,29 @@
 <p align="center">
     Home Page
 
+![image](https://github.com/user-attachments/assets/a7fe0800-d58a-4023-9164-992fa8506504)
+<p align="center">
+    Customer Login Page
+  
+![image](https://github.com/user-attachments/assets/d3fcb211-12ff-466e-a403-1f2a2074365e)
+<p align="center">
+    Product Page
+
+![image](https://github.com/user-attachments/assets/adcc9138-acb8-487e-8120-8249f59029d0)
+<p align="center">
+    Shopping Cart Page
+
+
+![image](https://github.com/user-attachments/assets/87867e1a-1037-4096-a08c-7fc6d33fd1b6)
+<p align="center">
+    Admin Login Page
+
+
+
+
+
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
