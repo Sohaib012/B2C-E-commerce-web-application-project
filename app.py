@@ -11,17 +11,30 @@ import dash
 from dash import dcc
 from dash import html
 import plotly.graph_objs as go
-
+import time
 load_dotenv()
 
 import psycopg2
-conn = psycopg2.connect(
-    host="localhost",
-    database="ecommsite",
-    user="postgres",
-    password="pgadmin"
-)
-
+# conn = psycopg2.connect(
+#     host="localhost",
+#     database="ecommsite",
+#     user="postgres",
+#     password="pgadmin"
+# )
+# conn = psycopg2.connect(
+#     host="db",
+#     database="ecommsite",
+#     user="postgres",
+#     password="pgadmin"
+# )
+while True:
+    try:
+        conn = psycopg2.connect(host="db",database="ecommsite",user="postgres",password="pgadmin")
+        print("Database connected successfully")
+        break
+    except psycopg2.OperationalError as e:
+        print("Database not ready, retrying in 5 seconds...")
+        time.sleep(5)
 #stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
 #stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 stripe_public_key = "pk_test_51N8I8nJxSZeiJ2ga3xrPHzE1PIdnbjZmSZMVjfeWDxxlZZJqGREZR5VgiTMeP2o7yRSd0CF9ahdWLwsCKo0Q6eN600RlJxE6iw"
@@ -38,7 +51,8 @@ def allowed_file(filename):
 
 #format: 'postgresql://user:password@localhost/database name'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:pgadmin@localhost:5432/ecommsite'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:pgadmin@localhost:5432/ecommsite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:pgadmin@db:5432/ecommsite'
 
 db = SQLAlchemy(app)
 
@@ -209,9 +223,18 @@ class Supplier(db.Model):
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 
+@app.route('/product/<int:product_id>')
+def product_detail(product_id):
+    productdata = Product.query.filter_by(product_id=product_id).first()
+    print("Image filename:", productdata.product_image)  # Debug line
+    return render_template('products.html', productdata=productdata)
+
+
+
 @app.route("/<string:name>")
 def invalid(name):
     return render_template('404.html')
+
 
 
 
@@ -828,8 +851,6 @@ dash_app.layout = html.Div(children=[
         }
     )
 ])
-
-
 
 
 if __name__ == '__main__':
