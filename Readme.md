@@ -8,9 +8,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-(![Home Page](https://github.com/user-attachments/assets/b99b4512-36f2-4631-a4cc-094de7b53cef))
-
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+![Home Page](https://github.com/user-attachments/assets/b99b4512-36f2-4631-a4cc-094de7b53cef)
+<p align="center">
+    Home Page
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
