@@ -9,16 +9,7 @@
 ## About The Project
 
 ### Technologies
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+![image](https://github.com/user-attachments/assets/cd0de7ee-0724-43b1-aa90-83c08a868656)
 
 
 ### Projet in Action
@@ -52,6 +43,45 @@
 <p align="center">
     Analytics Page
 
+### Requirements
+```sh
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+psycopg2==2.9.9
+python-dotenv==0.21.0
+stripe==11.1.0
+dash==2.18.2
+plotly==5.9.0
+Werkzeug==3.0.0
+  ```
 
+
+<!-- ROADMAP -->
+## Roadmap
+
+### User Registration and Authentication:
+Customers can create accounts and securely log in to 
+access personalized features and make purchases. 
+### Product Catalog: The website showcases a wide range of products with detailed 
+descriptions, images, and pricing information. 
+### Search Functionality: 
+Customers can easily search for specific products based on keywords 
+or categories, improving their shopping experience. 
+### Cart Management: 
+The website allows customers to add products to their cart, update 
+quantities, and remove items before proceeding to checkout. 
+### Secure Checkout: 
+Integration with the Stripe API ensures secure payment processing, 
+allowing customers to complete transactions with confidence. 
+### Admin Panel: 
+Administrators have access to an admin panel where they can manage 
+products, including adding, editing, and removing items from the inventory. 
+### Analytics Dashboard: 
+The website incorporates Plotly Dash to provide administrators with 
+valuable insights into product performance and revenue, empowering them to make 
+informed business decisions. 
+### GSAP Scrolltrigger Animations: 
+The website utilizes GSAP Scrolltrigger to create engaging 
+and interactive animations, enhancing the overall user experience. 
 
 
