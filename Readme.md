@@ -8,6 +8,20 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+### Technologies
+### Built With
+
+* [![Next][Next.js]][Next-url]
+* [![React][React.js]][React-url]
+* [![Vue][Vue.js]][Vue-url]
+* [![Angular][Angular.io]][Angular-url]
+* [![Svelte][Svelte.dev]][Svelte-url]
+* [![Laravel][Laravel.com]][Laravel-url]
+* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
+* [![JQuery][JQuery.com]][JQuery-url]
+
+
+### Projet in Action
 ![Home Page](https://github.com/user-attachments/assets/b99b4512-36f2-4631-a4cc-094de7b53cef)
 <p align="center">
     Home Page
